@@ -642,6 +642,24 @@ sub deleterepo_hdlist2 {
   }
 }
 
+sub createrepo_rpmdb {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  print "    running rpmdb --root $extrep --initdb\n";
+  # create generic rpm meta data
+  if (qsystem('rpmdb', '--root', $extrep, '--initdb')) {
+    print("    rpmdb failed: $?\n");
+  }
+  # signing is done only via rpm packages to my information
+}
+
+sub deleterepo_rpmdb {
+  my ($extrep, $projid) = @_;
+
+  print "    running rm -rf $extrep\n";
+  qsystem('rm', '-rf', $extrep);
+}
+
 sub createrepo_susetags {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -1234,6 +1252,11 @@ sub createrepo {
     createrepo_rpmmd($extrep, $projid, $xrepoid, $data, $repotype{'rpm-md'});
   } else {
     deleterepo_rpmmd($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'rpmdb'}) {
+    createrepo_rpmdb($extrep, $projid, $xrepoid, $data, $repotype{'rpmdb'});
+  } else {
+    deleterepo_rpmdb($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'suse'}) {
     createrepo_susetags($extrep, $projid, $xrepoid, $data, $repotype{'suse'});
